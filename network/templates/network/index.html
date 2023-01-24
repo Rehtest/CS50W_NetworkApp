@@ -1,0 +1,67 @@
+{% extends "network/layout.html" %}
+{% load static %}
+
+{% block body %}
+    
+    <h2>All Posts:</h2>
+    {% if user.is_authenticated %}
+        <div class="col-md-9 border rounded">
+            <h4>New Post</h4>
+            <form action="{% url 'index' %}" method="post">
+                {% csrf_token %}
+                <textarea id="post" name="post_text" class="form-control"></textarea>
+                <button type="submit" id="submitpost" class="btn btn-primary">Post</button>
+            </form>
+        </div>
+    {% endif %}
+    
+    <!--Implementing Pagination, (correct below line to include % if testing old functionality)
+    { for post in posts %}-->
+    
+    <!--Similar code across index, profile and following pages-->
+    {% for post in some_posts %}
+        <div class="col-md-9 border rounded" id="user_post">
+            <a href="{% url 'profile' user_view=post.user.username %}"><h4>{{ post.user }}</h4></a>
+            <p>{{ post.post }}</p>
+            {% if post.edited %}
+            <p class="post-time" title="Edited">{{ post.timestamp }}✎</p>
+            {% else %}
+            <p class="post-time">{{ post.timestamp }}</p>
+            {% endif %}
+            <p>❤️ <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span></p>
+            {% if user == post.user %}
+                <button type="submit" class="btn btn-info" id="edit" data-edit="{{ post.id }}">Edit</button>
+            {% endif %}
+            {% if user.is_authenticated %}
+                {% if user not in post.likes.all %}
+                    <button type="submit" class="btn btn-info" id="like" data-like="{{ post.id }}">Like</button>
+                {% else %}
+                    <button type="submit" class="btn btn-secondary" id="like" data-like="{{ post.id }}">Unlike</button>
+                {% endif %}
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <!-- Some pagination methods below
+    {{ some_posts }} <br>
+    Does it have previous page: {{ some_posts.has_previous }} <br>
+    Does it have next page: {{ some_posts.has_next }} <br>
+    What is current page: {{ some_posts.number }} <br>
+    How many pages: {{ some_posts.paginator.num_pages }}
+    -->
+
+    <!--Similar code across index, profile nad following pages-->
+    {% if some_posts.has_previous %}
+        <a href="?page=1">&laquo First</a>
+        <a href="?page={{some_posts.previous_page_number}}">Previous</a>
+    {% endif %}
+    {% if some_posts.has_next %}
+        <a href="?page={{some_posts.next_page_number}}">Next</a>
+        <a href="?page={{some_posts.paginator.num_pages}}">Last &raquo</a>
+    {% endif %}
+
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
+{% endblock %}

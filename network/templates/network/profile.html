@@ -1,0 +1,46 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+    <h1>{{ user_details.username }}'s Profile</h1>
+    <div class="row">
+        <div class="col-md-9 border rounded">
+            <h2>{{ user_details.username }}</h2>
+            <h3>Followers: {{ followers_count }}</h3>
+            <h3>Following: {{ following_count }}</h3>
+        </div>
+        {% if user.is_authenticated %}
+        <!--Only display if the user selected is different from that of the user who is logged in-->
+                {% if user != user_details %}
+                        <div class="col-md-3 border rounded">
+                            <form action="{% url 'profile' user_view=user_details.username %}" method="post">
+                                {% csrf_token %}
+                                {% if follow_button == "Unfollow" %}
+                                    <button type="submit" class="btn btn-secondary" name="follow" value="unfollow">Unfollow</button>
+                                {% elif follow_button == "Follow" %}
+                                    <button type="submit" class="btn btn-primary" name="follow" value="follow">Follow</button>
+                                {% endif %}
+                            </form>
+                        </div>
+                {% endif %}
+        {% endif %}
+    </div>
+    <div>
+        {% for post in posts %}
+        <div class="col-md-9 border rounded">
+            <h4>{{ post.user }}</h4>
+            <p>{{ post.post }}</p>
+            <p class="post-time">{{ post.timestamp }}</p>
+            <p>❤️</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if posts.has_previous %}
+        <a href="?page=1">&laquo First</a>
+        <a href="?page={{posts.previous_page_number}}">Previous</a>
+    {% elif posts.has_next %}
+        <a href="?page={{posts.next_page_number}}">Next</a>
+        <a href="?page={{posts.paginator.num_pages}}">Last &raquo</a>
+    {% endif %}
+
+{% endblock %}
